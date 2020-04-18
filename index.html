@@ -36,7 +36,7 @@
 <meta property="og:description" content="" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://xianliguang.github.io/" />
-
+<meta property="og:updated_time" content="2020-04-15T00:06:59+08:00" />
 <meta itemprop="name" content="E言译语">
 <meta itemprop="description" content=""><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="E言译语"/>
@@ -147,6 +147,7 @@
     <h3 class="widget-title"> 分类</h3>
     <div class="widget-body">
         <ul class="category-list">
+            <li class="category-list-item"><a href="https://xianliguang.github.io/categories/nginx/" class="category-list-link">nginx</a><span class="category-list-count">1</span></li>
         </ul>
     </div>
 </div>
@@ -155,11 +156,40 @@
     <div class="widget-body">
         <ul class="tag-list">
             
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/dns/" class="tag-list-link">dns</a><span
+                    class="tag-list-count">1</span></li>
+            
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/nginx/" class="tag-list-link">nginx</a><span
+                    class="tag-list-count">1</span></li>
+            
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" class="tag-list-link">服务发现</a><span
+                    class="tag-list-count">1</span></li>
+            
         </ul>
 
     </div>
 </div>
       
+<div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+        <ul class="recent-post-list list-unstyled no-thumbnail">
+            <li>
+                <div class="item-inner">
+                    <p class="item-title">
+                        <a href="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" class="title">[译]使用DNS为Nginx提供服务发现功能</a>
+                    </p>
+                    <p class="item-date">
+                        <time datetime="2020-04-15 00:06:59 &#43;0800 CST" itemprop="datePublished">2020-04-15</time>
+                    </p>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
   </div>
 </aside>
 
@@ -171,14 +201,58 @@
   <div class="content article-list">
     
     
-    </div>
+    
+    <article
+      class="article article-type-page"
+      itemscope
+      itemtype="http://schema.org/BlogPosting"
+    >
+      <div class="article-header">
+        <h1 itemprop="name">
+  <a
+    class="article-title"
+    href="/2020/04/dns-service-discovery-nginx-plus/"
+    >[译]使用DNS为Nginx提供服务发现功能</a
+  >
+</h1>
+
+      </div>
+      <div class="article-entry text-muted" itemprop="description">
+        <p>众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。</p>
+<p>NGINX Plus提供了两种方式来和服务发现功能进行整合：<code>NGINX Plus API</code> 和 <code>Domain Name System (DNS)</code> ，本篇文章主要是介绍后一种。</p>
+<p>当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作<code>后端服务</code>）的时候，负载均衡器的配置也必须同步反映出<code>后端服务</code>每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。</p>
+<p>很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。</p>
+      </div>
+      <p class="article-meta">
+<span class="article-date">
+  <i class="icon icon-calendar-check"></i>&nbsp;
+<a href="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" class="">
+  <time datetime="2020-04-15 00:06:59 &#43;0800 CST" itemprop="datePublished">2020-04-15</time>
+</a>
+</span>
+<span class="article-category">
+  <i class="icon icon-folder"></i>&nbsp;
+  <a class="article-category-link" href="/categories/nginx/"> NGINX </a>
+</span>  
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>&nbsp;
+    <a class="article-tag-link" href="/tags/nginx/"> NGINX </a>
+    <a class="article-tag-link" href="/tags/dns/"> DNS </a>
+    <a class="article-tag-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"> 服务发现 </a>
+  </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> &nbsp;<a href="/2020/04/dns-service-discovery-nginx-plus/#comments" class="article-comment-link">评论</a></span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 4064字</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 9分 </span>
+      </p>
+    </article></div>
   
 <nav class="bar bar-footer clearfix" data-stick-bottom>
   <div class="bar-inner">
     <ul class="pager pull-left">
     </ul>
     <div class="total-article bar-right">
-      Page:1/0
+      Page:1/1
     </div>
   </div>
 </nav>

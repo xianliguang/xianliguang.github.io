@@ -3,25 +3,70 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://xianliguang.github.io/categories/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://xianliguang.github.io/tags/dns/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://xianliguang.github.io/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://xianliguang.github.io/series/</loc>
+    <loc>https://xianliguang.github.io/tags/nginx/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://xianliguang.github.io/categories/nginx/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://xianliguang.github.io/posts/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://xianliguang.github.io/tags/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://xianliguang.github.io/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/</loc>
+    <lastmod>2020-04-15T00:06:59+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://xianliguang.github.io/series/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

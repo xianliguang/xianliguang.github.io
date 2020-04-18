@@ -5,9 +5,22 @@
     <link>https://xianliguang.github.io/categories/</link>
     <description>Recent content in Categories on E言译语</description>
     <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Wed, 15 Apr 2020 00:06:59 +0800</lastBuildDate>
     
         <atom:link href="https://xianliguang.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>[译]使用DNS为Nginx提供服务发现功能</title>
+      <link>https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/</link>
+      <pubDate>Wed, 15 Apr 2020 00:06:59 +0800</pubDate>
+      
+      <guid>https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/</guid>
+      <description>&lt;p&gt;众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。&lt;/p&gt;
+&lt;p&gt;NGINX Plus提供了两种方式来和服务发现功能进行整合：&lt;code&gt;NGINX Plus API&lt;/code&gt; 和 &lt;code&gt;Domain Name System (DNS)&lt;/code&gt; ，本篇文章主要是介绍后一种。&lt;/p&gt;
+&lt;p&gt;当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作&lt;code&gt;后端服务&lt;/code&gt;）的时候，负载均衡器的配置也必须同步反映出&lt;code&gt;后端服务&lt;/code&gt;每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。&lt;/p&gt;
+&lt;p&gt;很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。&lt;/p&gt;</description>
+    </item>
     
   </channel>
 </rss>
