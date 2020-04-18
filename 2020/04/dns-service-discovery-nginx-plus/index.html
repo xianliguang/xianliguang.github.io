@@ -34,7 +34,8 @@ NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus
   
   <link rel="stylesheet" href="https://xianliguang.github.io/css/style.min.7dc20efbc53647d41aa9ddea0c48e59300223d084e66ea0cbe7c30bd88903acc.css">
   
-  <link rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/9.15.10/styles/github.min.css" async>
+  <link rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/9.15.10/styles/github.min.css" async> 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" async>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css" async>
   <meta property="og:title" content="[译]使用DNS为Nginx提供服务发现功能" />
 <meta property="og:description" content="众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。
@@ -256,6 +257,12 @@ NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus
     <a class="article-tag-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"> 服务发现 </a>
   </span>
 
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
         <span class="post-comment"><i class="icon icon-comment"></i>&nbsp;<a href="/2020/04/dns-service-discovery-nginx-plus/#comments"
             class="article-comment-link">评论</a></span>
 		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 4064字</span>
@@ -557,6 +564,31 @@ server {
     });
 </script>
 
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: 'c04f139620591882a87f',
+        clientSecret: '9001618320ec152002fcc48d0263f4c715e77775',
+        repo: 'xianliguang_blog_comment',
+        owner: 'xianliguang',
+        admin: ['xianliguang'],
+        id: md5(location.pathname),
+        distractionFreeMode: true
+    });
+    gitalk.render('comments');
+</script>
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?9e1baed3ef9086da462f2ffea491305d";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+    
   </body>
 </html>
