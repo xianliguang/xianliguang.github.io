@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>
+        [译]使用DNS为Nginx提供服务发现功能 - E言译语
+      </title>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  
+  <meta name="theme-color" content="#000000" />
+  
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <meta name="description" content="众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。
+NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus API 和 Domain Name System (DNS) ，本篇文章主要是介绍后一种。
+当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作后端服务）的时候，负载均衡器的配置也必须同步反映出后端服务每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。
+很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。
+" />
+  <meta name="generator" content="Hugo 0.69.0 with theme pure" />
+  <title>[译]使用DNS为Nginx提供服务发现功能 - E言译语</title>
+  
+  
+  <link rel="stylesheet" href="https://xianliguang.github.io/css/style.min.7dc20efbc53647d41aa9ddea0c48e59300223d084e66ea0cbe7c30bd88903acc.css">
+  
+  <link rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/9.15.10/styles/github.min.css" async>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css" async>
+  <meta property="og:title" content="[译]使用DNS为Nginx提供服务发现功能" />
+<meta property="og:description" content="众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。
+NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus API 和 Domain Name System (DNS) ，本篇文章主要是介绍后一种。
+当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作后端服务）的时候，负载均衡器的配置也必须同步反映出后端服务每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。
+很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" />
+<meta property="article:published_time" content="2020-04-15T00:06:59+08:00" />
+<meta property="article:modified_time" content="2020-04-15T00:06:59+08:00" />
+<meta itemprop="name" content="[译]使用DNS为Nginx提供服务发现功能">
+<meta itemprop="description" content="众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。
+NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus API 和 Domain Name System (DNS) ，本篇文章主要是介绍后一种。
+当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作后端服务）的时候，负载均衡器的配置也必须同步反映出后端服务每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。
+很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。">
+<meta itemprop="datePublished" content="2020-04-15T00:06:59&#43;08:00" />
+<meta itemprop="dateModified" content="2020-04-15T00:06:59&#43;08:00" />
+<meta itemprop="wordCount" content="4064">
+
+
+
+<meta itemprop="keywords" content="NGINX,DNS,服务发现," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[译]使用DNS为Nginx提供服务发现功能"/>
+<meta name="twitter:description" content="众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。
+NGINX Plus提供了两种方式来和服务发现功能进行整合：NGINX Plus API 和 Domain Name System (DNS) ，本篇文章主要是介绍后一种。
+当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作后端服务）的时候，负载均衡器的配置也必须同步反映出后端服务每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。
+很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。"/>
+
+  <!--[if lte IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+    <![endif]-->
+
+  <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+  </head>
+
+  
+  
+
+  <body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage"><header class="header" itemscope itemtype="http://schema.org/WPHeader">
+    <div class="slimContent">
+      <div class="navbar-header">
+        <div class="profile-block text-center">
+          <a id="avatar" href="https://github.com/xianliguang" target="_blank">
+            <img class="img-circle img-rotate" src="https://xianliguang.github.io/avatar.png" width="200" height="200">
+          </a>
+          <h2 id="name" class="hidden-xs hidden-sm">xianliguang</h2>
+          <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+          <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i>GuangZhou, China</small>
+        </div><div class="search" id="search-form-wrap">
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i
+                        class="icon icon-search"></i></button>
+            </span>
+        </div>
+        <div class="ins-search">
+            <div class="ins-search-mask"></div>
+            <div class="ins-search-container">
+                <div class="ins-input-wrapper">
+                    <input type="text" class="ins-search-input" placeholder="想要查找什么..."
+                        x-webkit-speech />
+                    <button type="button" class="close ins-close ins-selectable" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="ins-section-wrapper">
+                    <div class="ins-section-container"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+        <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+        <ul class="nav navbar-nav main-nav">
+            <li class="menu-item menu-item-home">
+                <a href="/">
+                    <i class="icon icon-home-fill"></i>
+                  <span class="menu-title">Home</span>
+                </a>
+            </li>
+            <li class="menu-item menu-item-archives">
+                <a href="/posts/">
+                    <i class="icon icon-archives-fill"></i>
+                  <span class="menu-title">Archives</span>
+                </a>
+            </li>
+            <li class="menu-item menu-item-categories">
+                <a href="/categories/">
+                    <i class="icon icon-folder"></i>
+                  <span class="menu-title">Categories</span>
+                </a>
+            </li>
+            <li class="menu-item menu-item-tags">
+                <a href="/tags/">
+                    <i class="icon icon-tags"></i>
+                  <span class="menu-title">Tags</span>
+                </a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+<aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content"><p></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+      <div class="widget">
+    <h3 class="widget-title"> 分类</h3>
+    <div class="widget-body">
+        <ul class="category-list">
+            <li class="category-list-item"><a href="https://xianliguang.github.io/categories/nginx/" class="category-list-link">nginx</a><span class="category-list-count">1</span></li>
+        </ul>
+    </div>
+</div>
+      <div class="widget">
+    <h3 class="widget-title"> 标签</h3>
+    <div class="widget-body">
+        <ul class="tag-list">
+            
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/dns/" class="tag-list-link">dns</a><span
+                    class="tag-list-count">1</span></li>
+            
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/nginx/" class="tag-list-link">nginx</a><span
+                    class="tag-list-count">1</span></li>
+            
+            
+            <li class="tag-list-item"><a href="https://xianliguang.github.io/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" class="tag-list-link">服务发现</a><span
+                    class="tag-list-count">1</span></li>
+            
+        </ul>
+
+    </div>
+</div>
+      
+<div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+        <ul class="recent-post-list list-unstyled no-thumbnail">
+            <li>
+                <div class="item-inner">
+                    <p class="item-title">
+                        <a href="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" class="title">[译]使用DNS为Nginx提供服务发现功能</a>
+                    </p>
+                    <p class="item-date">
+                        <time datetime="2020-04-15 00:06:59 &#43;0800 CST" itemprop="datePublished">2020-04-15</time>
+                    </p>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+  </div>
+</aside>
+
+    
+    
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <h4 class="toc-title">文章目录</h4>
+    <nav id="toc" class="js-toc toc">
+
+    </nav>
+  </div>
+</aside>
+<main class="main" role="main"><div class="content">
+  <article id="-" class="article article-type-" itemscope
+    itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      <h1 itemprop="name">
+  <a
+    class="article-title"
+    href="/2020/04/dns-service-discovery-nginx-plus/"
+    >[译]使用DNS为Nginx提供服务发现功能</a
+  >
+</h1>
+
+      <div class="article-meta">
+        
+<span class="article-date">
+  <i class="icon icon-calendar-check"></i>&nbsp;
+<a href="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" class="article-date">
+  <time datetime="2020-04-15 00:06:59 &#43;0800 CST" itemprop="datePublished">2020-04-15</time>
+</a>
+</span>
+<span class="article-category">
+  <i class="icon icon-folder"></i>&nbsp;
+  <a class="article-category-link" href="/categories/nginx/"> NGINX </a>
+</span>  
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>&nbsp;
+    <a class="article-tag-link" href="/tags/nginx/"> NGINX </a>
+    <a class="article-tag-link" href="/tags/dns/"> DNS </a>
+    <a class="article-tag-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"> 服务发现 </a>
+  </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i>&nbsp;<a href="/2020/04/dns-service-discovery-nginx-plus/#comments"
+            class="article-comment-link">评论</a></span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 4064字</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 9分 </span>
+      </div>
+    </div>
+    <div class="article-entry marked-body js-toc-content" itemprop="articleBody">
+      <p>众所周知微服务架构的一个最大的有优势就是可以快速简单的扩容服务实例，要实现这个功能你需要一个负载均衡器来帮助你在众多的实例中选择一个可用的实例，并且能在可用实例发生变化的时候快速通知负载均衡器，这一系列的动作也被称作服务发现。</p>
+<p>NGINX Plus提供了两种方式来和服务发现功能进行整合：<code>NGINX Plus API</code> 和 <code>Domain Name System (DNS)</code> ，本篇文章主要是介绍后一种。</p>
+<p>当你通过增加（减少）虚拟机或者容器来扩容服务（本文称作<code>后端服务</code>）的时候，负载均衡器的配置也必须同步反映出<code>后端服务</code>每次变动。鉴于扩容随时都有可能发生，我们需要通过DNS来实现自动服务发现。</p>
+<p>很多应用平台(例如Kubernets)都提供了基于DNS的服务发现功能，在文章末尾我们会提供一些链接来介绍如何将NGINX Plus整合进这些平台以及那些通过DNS来实现的服务发现的工具。</p>
+<h2 id="dns特性">DNS特性</h2>
+<p>在解释如何通过DNS配置服务发现之前，我们先来看一下DNS一些特性。</p>
+<h4 id="ttl">TTL</h4>
+<p>为了防止DNS客户端使用过期的信息，DNS记录提供了一个叫time‑to‑live（TTL）的字段用来告诉客户端这条记录的有效时长。客户端必须在一条记录过期后重新从DNS服务器更新一次最新信息。NGINX Plus默认就遵守TTL的规定，并且在TTL的基础上提供了更加细粒度的控制，即你可以通过配置让NGINX Plus忽略TTL，然后定期更新DNS信息。我们在后面也会讨论NGINX开源版本是如何处理TTL的。</p>
+<h4 id="dns-over-tcp">DNS over TCP</h4>
+<p>默认情况下，DNS客户端是通过UDP和服务端进行通信的，但如果一个域名配置被解析为很多后端IP地址的话，DNS服务的回包可能会超过UDP单个报512字节的限制。使用TCP可以解决这个问题，当一个完整的记录大小超过一个数据包的时候，DNS服务会在回包设置一个截断标记，用来告诉客户端使用TCP来获取全部记录信息。TCP获取DNS信息是从NGINX 1.9.11开始支持的，并且NGINX Plus R9开始也开始支持。如果想要了解更多可以参考<a href="https://www.nginx.com/blog/load-balancing-dns-traffic-nginx-plus/">这里</a>。</p>
+<h4 id="srv记录">SRV记录</h4>
+<p>DNS可以将将主机名解析成IP地址，但端口如何解决呢？例如当你需要对一些Docker容器进行负载均衡的时候，你不能依靠一些众所周知的端口，以为所有的端口都是动态分配的。DNS有一个特殊的记录类型，叫做SRV记录，SRV记录会包含端口号和一些参数的。NGINX Plus R9以及以后的版本都支持SRV记录。</p>
+<h2 id="使用dns为nginx提供服务发现">使用DNS为NGINX提供服务发现</h2>
+<p>接下来我们将根据复杂度依次给大家介绍5中使用DNS为NGINX以及NGINX Plus提供服务发现的方法。前3个同时适用于NGINX和NGINX Plus，最后两个值适用于NGINX Plus。</p>
+<p>假设我们对于DNS Server，它的ip为<code>10.0.0.2</code>，<strong>backends.example.com</strong> 有三个Ip地址，我们可以通过nslookup这个工具的看一下这个热地址的后端ip。</p>
+<pre><code class="language-shell">$ nslookup backends.example.com 10.0.0.2
+Server:		10.0.0.2
+Address:	10.0.0.2#53
+
+Name:	backends.example.com
+Address: 10.0.0.11
+Name:	backends.example.com
+Address: 10.0.0.10
+Name:	backends.example.com
+Address: 10.0.0.12
+</code></pre>
+<h3 id="使用nginx的dns服务发现功能">使用NGINX的DNS服务发现功能</h3>
+<p>我们先介绍三种用可以在NGNIX开源版中使用DNS做服务发现的方法，当然这三种方法也可以用在NGINX Plus上。</p>
+<h4 id="使用proxy_pass">使用proxy_pass</h4>
+<p>定义一组后端服务最简单的方法就是直接使用<code>proxy_pass</code>中生命一个具体的域名，如下：</p>
+<pre><code>server {
+    location / {
+        proxy_pass http://backends.example.com:8080;
+    }
+}
+</code></pre>
+<p>NGINX会在启动的时候去加载配置，并通过查询DNS服务器来解析<code>backends.example.com</code>。DNS服务器会将<code>backends.example.com</code>解析成三个ip，然后NGINX默认使用<code>Round Robin</code>算法来对他们进行负载均衡。NGINX会从操作系统的<code> /etc/resolv.conf</code>这个文件中的找到要使用的DNS服务。</p>
+<p>这个方法是最不具灵活性的一种服务发现方法，有如下加个缺点：</p>
+<ul>
+<li>如果域名不能被解析，NGINX会启动失败或者重新加载配置</li>
+<li>NGINX会缓存DNS记录一直到下次重启或者重新加载配置，并且会忽略DNS记录的TTL</li>
+<li>我们不能使用其他的负载均衡算法，同样我们也不能配置被动健康检查或者其他指令参数</li>
+</ul>
+<h4 id="使用upstream">使用upstream</h4>
+<p>为了充分利用NGINX提供的负载均衡算法，我们可以定义一组<code>upstream</code>服务。和直接使用ip来定义服务不同，这里我们使用域名作为<code>server</code>指令的参数。</p>
+<p>正如前面展示的那样，<code>backends.example.com</code>会在NGINX启动或重新加载配置的时候被解析成三个后端服务。但是现在我们可以使用一个叫做<code>最少连接优先</code>的更复杂的负载均衡算法，同时我们还配置了<code>max_fails</code>来开启被动健康检查，以便让NGINX在三次连续失败的请求后将对应后端服务标记为<code>下线</code>.</p>
+<pre><code>upstream backends {
+    least_conn;
+
+    server backends.example.com:8080 max_fails=3;
+}
+
+server {
+    location / {
+        proxy_pass http://backends;
+    }
+}
+</code></pre>
+<p>尽管这种方法可以让我们选择负载均衡算法并且配置健康检查，但它仍然有着和前一个方法一样的缺点：缓存和忽略DNS记录的TTL</p>
+<h4 id="使用变量">使用变量</h4>
+<p>这个方法是第一种方法的变种，但是它可以让我们控制NGINX多久解析一次域名，如下：</p>
+<pre><code>resolver 10.0.0.2 valid=10s;
+
+server {
+    location / {
+        set $backend_servers backends.example.com;
+        proxy_pass http://$backend_servers:8080;
+    }
+}
+</code></pre>
+<p>当你在<code>proxy_pass</code>中使用参数声明一个域名的时候，NGINX会TTL失效后重新解析域名。你必须显示的使用<code>resolver</code>声明一个域名服务，你也可以告诉NGINX忽略域名的TTL然后按照一定的频率来解析域名，上面的配置就是告诉NGINX每10秒重新解析一次。</p>
+<p><strong>注意</strong>：这种方法对于TCP/UDP的负载均衡是从NGINX 1.11.3和NGINX Plus R10开始支持的。</p>
+<p>这中方法消灭了第一种的两个缺点，但是由于不能使用<code>upstream</code>组，你仍然不能使用其他的负载均衡算法或者其他的<code>server</code>参数配置(第二种方法介绍的)。</p>
+<h3 id="使用nginx-plus的dns服务发现功能">使用NGINX Plus的DNS服务发现功能</h3>
+<p>接下来我们看下2个NGINX Plus专属的DNS服务发现功能</p>
+<h4 id="使用a记录">使用A记录</h4>
+<p>在NGINX Plus中，我们可以用我们期望的频率来解析DNS，并且没有前三种方法的缺点。开启方法如下：</p>
+<ul>
+<li>使用<code>resolver</code>指令来声明域名解析服务</li>
+<li>在<code>upstream</code>配置中使用<code>zone</code>指令分配共享内存</li>
+<li>在<code>server</code>指令中使用域名的地方增加<code>resolve</code>参数</li>
+</ul>
+<p>配置样例如下:</p>
+<pre><code>resolver 10.0.0.2 valid=10s;
+
+upstream backends {
+    zone backends 64k;
+    server backends.example.com:8080 resolve;
+}
+
+server {
+    location / {
+        proxy_pass http://backends;
+    }
+}
+</code></pre>
+<p>默认情况下NGINX Plus会在域名记录超时后重新解析，如果想让NGINX Plus以固定频率解析，我们可以在<code>resolver</code>指令中配置<code>valid</code>参数。</p>
+<p>上面的配置片段，每隔10秒种NGINX Plus都会去域名服务10.0.0.2重新解析<strong>backends.example.com</strong>。如果在启动或者重新加载配置的时候解析失败，NGINX Plus会给返回502页面。</p>
+<h4 id="使用srv记录">使用SRV记录</h4>
+<p>NGINX Plus R9及后面的版本都支持DNS SRV记录。这使得NGINX Plus不仅可以从域名服务获取IP地址并且可以同时获取端口号,权重以及优先级等配置。这个功能在端口号会经常变更的微服务的环境里是非常有用的。</p>
+<p><strong>SRV</strong>记录有三个部分组成：服务名，通信协议，域名。域名服务10.0.0.2配置了3条SRV记录，每条记录都包含服务名<strong>http</strong>，通信协议<strong>tcp</strong>，域名<strong>backends.example.com</strong>，如下：</p>
+<pre><code class="language-shell">$ nslookup -query=SRV _http._tcp.backends.example.com 10.0.0.2
+Server:		10.0.0.2
+Address:	10.0.0.2#53
+
+_http._tcp.backends.example.com	service = 0 2 8090 backend-0.example.com.
+_http._tcp.backends.example.com	service = 0 1 8091 backend-1.example.com.
+_http._tcp.backends.example.com	service = 10 1 8092 backend-2.example.com.
+</code></pre>
+<p>通过解析每条<code>SRV</code>记录，可以得到对应的ip地址：</p>
+<pre><code>$ nslookup backend-0.example.com 10.0.0.2
+...
+Name:	backend-0.example.com
+Address: 10.0.0.10
+
+$ nslookup backend-1.example.com 10.0.0.2
+...
+Name:	backend-1.example.com
+Address: 10.0.0.11
+
+$ nslookup backend-2.example.com 10.0.0.2
+...
+Name:	backend-2.example.com
+Address: 10.0.0.12
+</code></pre>
+<p>我们仔细分析一下<strong>nslookup</strong>返回的<strong>SRV</strong>记录：</p>
+<pre><code>- _http._tcp.backends.example.com	service = 0 2 8090 backend-0.example.com.
+</code></pre>
+<ul>
+<li><strong>_http._tcp</strong> – SRV记录服务名以及协议名。我们需要将这些作为参数在<code>server</code>指令中声明。</li>
+<li><strong>0</strong> – 优先级。 值越小优先级越高。 NGINX Plus会使用优先级最高的服务作为主服务，其他的作为备服务。</li>
+<li><strong>2</strong> – 权重。 NGINX Plus会使用这个值作为后端服务在<code>upstream</code>组中的权重（和<code>server</code>指令中的权重参数一致）。</li>
+<li><strong>8090</strong> – 端口号。NGINX Plus使用这个值作为后端服务在upstream组中的端口。</li>
+<li><strong>backend‑0.example.com</strong> – 后端服务域名。NGINX Plus会解析这个域名然后将解析到的所有后端服务加入到<code>upstream</code>。</li>
+</ul>
+<p>下面是如何配置NGINX Plus使用SRV记录的例子：</p>
+<pre><code>resolver 10.0.0.2 valid=10s;
+
+upstream backends {
+    zone backends 64k;
+    server backends.example.com service=_http._tcp resolve;
+}
+
+server {
+    location / {
+        proxy_pass http://backends;
+    }
+}
+
+</code></pre>
+<p>在<code>server</code>指令中使用<code>service</code>参数指定需要解析<strong>SRV</strong>的名字和协议。这里我们使用**_http**和**_tcp**。除了使用<code>service</code>参数以及我们不需要指定端口号外，其他配置都和前一个例子一样。</p>
+<p>基于上一节通过nslookup命令返回的值， NGINX Plus会获取到3个后端服务：</p>
+<ul>
+<li>10.0.0.10 – 主服务，端口：8090 权重：2</li>
+<li>10.0.0.11 – 主服务，端口：8091 权重：1</li>
+<li>10.0.0.12 – 倍服务，端口：8092 权重：1</li>
+</ul>
+<p>如果我们配置了NGINX Plus活动监控，我们在面板中可以看到这些后端服务：
+<img src="/dns-service-discovery-backends-on-dashboard.png" alt="Dashboard"></p>
+<p><strong>说明</strong>：请求会根据我们生命的权重进行分配。10.0.0.11:8091会接收到1/3的流量，10.0.0.10:8090会得到2/3。10.0.0.12:8092作为备服务在其他两个服务挂掉之前不会接收到任何流量。</p>
+<h2 id="注意事项">注意事项</h2>
+<p>当在NGINX Plus中使用DNS作为服务发现时，我们要时刻记住下面几件事：</p>
+<ul>
+<li>DNS服务需要高可用或者有备用服务。如果DNS服务关掉了，NGINX Plus会停止更新后端配置，并且会保留已经存在的后端服务，忽略TTL配置。</li>
+<li>你可以在<code>resolver</code>中声明多个域名服务，如果一个挂了，NGINX Plus会使用另一个。</li>
+<li>NGINX Plus除了使用DNS服务发现外，还提供了相关API，我们可以通过简单的HTTP请求来移除或添加<code>upstream</code>组中的后端服务。</li>
+</ul>
+<h2 id="其他例子">其他例子</h2>
+<p>如果你还想研究完整的例子，可以参考下面几篇关于NGINX and NGINX Plus如何使用DNS作为服务发现的文章：</p>
+<ul>
+<li><a href="https://www.nginx.com/blog/service-discovery-nginx-plus-srv-records-consul-dns/">Service Discovery for NGINX Plus Using DNS SRV Records from Consul</a></li>
+<li><a href="https://www.nginx.com/blog/load-balancing-kubernetes-services-nginx-plus/">Load Balancing Kubernetes Services with NGINX Plus</a></li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>NGINX Plus通过DNS提供了一种简单的方法来配置微服务环境中的负载均衡。R9版本开始支持SRV记录让NGINX Plus变得更加强大，因为它不但可以获取ip地址，还可以获取端口。</p>
+<p><strong>原文链接</strong>：<a href="https://www.nginx.com/blog/dns-service-discovery-nginx-plus/">https://www.nginx.com/blog/dns-service-discovery-nginx-plus/</a></p>
+    </div>
+    <div class="article-footer">
+<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接: </strong>
+      <a href="https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/" title="[译]使用DNS为Nginx提供服务发现功能" target="_blank" rel="external">https://xianliguang.github.io/2020/04/dns-service-discovery-nginx-plus/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>License：</strong><a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN</a>
+    </li>
+  </ul>
+</blockquote>
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/xianliguang" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://xianliguang.github.io/avatar.png" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/xianliguang" target="_blank"><span class="text-dark">xianliguang</span><small class="ml-1x"></small></a></h3>
+        <div>吾生也有涯,而知也无涯</div>
+      </div>
+    </figure>
+  </div>
+</div>
+    </div>
+  </article>
+<section id="comments">
+</section>
+
+</div><nav class="bar bar-footer clearfix" data-stick-bottom>
+    <div class="bar-inner">
+        <div class="bar-right">
+            <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter"
+                data-mobile-sites="weibo,qq,qzone"></div>
+        </div>
+    </div>
+</nav>
+
+</main><footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+<ul class="social-links">
+    <li><a href="https://github.com/xianliguang" target="_blank" title="github" data-toggle=tooltip data-placement=top >
+            <i class="icon icon-github"></i></a></li>
+    <li><a href="https://xianliguang.github.io/index.xml" target="_blank" title="rss" data-toggle=tooltip data-placement=top >
+            <i class="icon icon-rss"></i></a></li>
+</ul>
+  <div class="copyright">
+    &copy;2019  -
+    2020
+    <div class="publishby">
+        Theme by <a href="https://github.com/xiaoheiAh" target="_blank"> xiaoheiAh </a>base on<a href="https://github.com/xiaoheiAh/hugo-theme-pure" target="_blank"> pure</a>.
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+            showMathMenu: false, //disables context menu
+            tex2jax: {
+            inlineMath: [ ['$','$'], ['\\(','\\)'] ]
+           }
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script type="text/javascript" src="https://cdn.staticfile.org/highlight.js/9.15.10/highlight.min.js"></script>
+<script type="text/javascript" src="https://cdn.staticfile.org/highlight.js/9.15.10/languages/python.min.js" defer></script>
+<script type="text/javascript" src="https://cdn.staticfile.org/highlight.js/9.15.10/languages/javascript.min.js" defer></script><script>
+    hljs.configure({
+        tabReplace: '    ', 
+        classPrefix: ''     
+        
+    })
+    hljs.initHighlightingOnLoad();
+</script>
+<script src="https://xianliguang.github.io/js/application.min.bdeb64b910570b6c41badc6a05b7afb0c8ad9efd8525de3c7257d59e786326a3.js"></script>
+<script src="https://xianliguang.github.io/js/plugin.min.51ff8c7317566f82259170fa36e09c4493adc9b9378b427a01ad3f017ebac7dd.js"></script>
+
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(未命名)',
+            },
+            ROOT_URL: 'https:\/\/xianliguang.github.io\/',
+            CONTENT_URL: 'https:\/\/xianliguang.github.io\/\/searchindex.json ',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script type="text/javascript" src="https://xianliguang.github.io/js/insight.min.a343cd9a5a7698336b28ef3a7c16a3a1b1d2d5fb17dc8ed04022bbe08cc5459073a15bdafa3a8a58cdd56080784bdd69fa70b1ae8597565c799c57ed00f0e120.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+<script>
+    tocbot.init({
+        
+        tocSelector: '.js-toc',
+        
+        contentSelector: '.js-toc-content',
+        
+        headingSelector: 'h1, h2, h3',
+        
+        hasInnerContainers: true,
+    });
+</script>
+
+
+  </body>
+</html>
